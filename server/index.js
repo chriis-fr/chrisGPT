@@ -10,7 +10,9 @@ const { restart } = require("nodemon");
 const app = express();
 const port = process.env.PORT;
 
-app.use(cors());
+app.use(cors({
+    origin: 'https://chrisgpt-alpha.vercel.app'
+}));
 app.use(bodyParser.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GAPI_KEY);
