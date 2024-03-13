@@ -1,6 +1,28 @@
 {
     "version": 2,
-    "builds": [{"src": "./index.js", "use": 
-    "@vercel/node" }],
-    "routes": [{"src": "/(.*)", "dest": "/"}]
-}
+    "builds": [
+      {
+        "src": "index.js", 
+        "use": "@vercel/node"
+      },
+      {
+        "src": "client/package.json",
+        "use": "@vercel/static-build",
+        "config": { "distDir": "build" } 
+      }
+    ],
+    "routes": [
+      { "handle": "filesystem" }, 
+      {
+        "src": "/api/(.*)",
+        "dest": "index.js" 
+      },
+      {
+        "src": "/(.*)",
+        "dest": "client/public/index.html" 
+      }
+    ],
+    "env": {
+      "API_URL": "https://chrisgpt-alpha.vercel.app" 
+    }
+  }
