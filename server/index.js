@@ -10,9 +10,14 @@ const { restart } = require("nodemon");
 const app = express();
 const port = process.env.PORT;
 
-app.use(cors({
-    origin: 'https://chrisgpt-alpha.vercel.app'
-}));
+// Custom CORS middleware
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://chrisgpt-alpha.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+});
+
 app.use(bodyParser.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GAPI_KEY);
