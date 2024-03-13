@@ -15,7 +15,7 @@ function Chat() {
   const [isRecording, setIsRecording] = useState(false);
   const [chatResponses, setChatResponses] = useState([])
   const textAreaRef = useRef(null)
-  const apiUrl = process.env.REACT_APP_API_URL
+  const apiUrl = 'https://chris-gpt-server.vercel.app'
 
   // useEffect(() => {
   //   setConversation([])
