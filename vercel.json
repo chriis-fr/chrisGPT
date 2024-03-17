@@ -1,28 +1,32 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "index.js", 
-        "use": "@vercel/node"
-      },
-      {
-        "src": "client/package.json",
-        "use": "@vercel/static-build",
-        "config": { "distDir": "build" } 
-      }
-    ],
-    "routes": [
-      { "handle": "filesystem" }, 
-      {
-        "src": "/api/(.*)",
-        "dest": "index.js" 
-      },
-      {
-        "src": "/(.*)",
-        "dest": "client/public/index.html" 
-      }
-    ],
-    "env": {
-      "API_URL": "https://chrisgpt-alpha.vercel.app" 
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "build" } 
     }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    {
+      "src": "/api/chat",
+      "dest": "api/chat.js" 
+    },
+    {
+      "src": "/api/reset",
+      "dest": "api/reset.js" 
+    },
+    {
+      "src": "/(.*)",
+      "dest": "client/public/index.html" 
+    }
+  ],
+  "env": {
+    "API_URL": "https://chris-gpt-server.vercel.app" 
   }
+}

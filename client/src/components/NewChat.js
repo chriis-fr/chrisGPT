@@ -9,7 +9,7 @@ function NewChat() {
   const [outDiv, setOutdiv] = useState(false)
   const {user, logOut} = useUserAuth();
   const { startNewChat, conversation, isChatActive, saveConversation, setConversation  } = useContext(ChatContext)
-  const apiUrl = process.env.REACT_APP_API_URL
+  const apiUrl = 'https://chrisgpt-alpha.vercel.app/api'
 
   useEffect(() => {
     const chatsRef = ref(database, `users/${user.uid}/conversations`);
