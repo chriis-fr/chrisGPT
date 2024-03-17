@@ -1,78 +1,73 @@
-import React, {useState, useEffect, useRef, useContext} from 'react'
-import annyang from 'annyang'
-import compromise from 'compromise'
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import annyang from 'annyang';
+import compromise from 'compromise';
 import axios from 'axios';
 import { ChatContext } from '../contexts/chatContext';
 import { database } from '../contexts/firebase';
 import { push, ref, set } from 'firebase/database';
-
-const { v4: uuidv4 } = require( 'uuid' );
+import { v4 as uuidv4 } from 'uuid';
 
 function Chat() {
-  const {conversation, setConversation,  saveConversation} = useContext(ChatContext)
+  const { conversation, setConversation, saveConversation } = useContext(ChatContext);
   const [voiceInput, setVoiceInput] = useState('');
   const [textInput, setTextInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [chatResponses, setChatResponses] = useState([])
-  const textAreaRef = useRef(null)
-  const apiUrl = 'https://chrisgpt-alpha.vercel.app/api'
-
-  // useEffect(() => {
-  //   setConversation([])
-  // }, [startNewChat])
+  const [chatResponses, setChatResponses] = useState([]);
+  const textAreaRef = useRef(null);
+  const apiUrl = 'https://chrisgpt-alpha.vercel.app/api/chat'; // Adjust the API endpoint
 
   useEffect(() => {
-    scrollToBottom()
+    scrollToBottom();
   }, [chatResponses]);
 
   const scrollToBottom = () => {
-    if(textAreaRef.current){
+    if (textAreaRef.current) {
       textAreaRef.current.scrollTop = textAreaRef.current.scrollHeight;
     }
-  }
+  };
 
-  useEffect(()=> {
+  useEffect(() => {
     annyang.start(); // initialise annyang
 
     //set up speech recog
     annyang.addCallback('result', (phrases) => {
-      const voiceText = phrases[0]
-      setVoiceInput(voiceText)
-      processVoiceInput(voiceText)
+      const voiceText = phrases[0];
+      setVoiceInput(voiceText);
+      processVoiceInput(voiceText);
     });
     return () => {
       annyang.abort();
-    }
-  }, [])
+    };
+  }, []);
 
   const startRecording = () => {
     setIsRecording(true);
     annyang.start();
-  }
+  };
+
   const stopRecording = () => {
     setIsRecording(false);
     annyang.abort();
-  }
+  };
+
   const processVoiceInput = (input) => {
-    const doc = compromise(input)
+    const doc = compromise(input);
     const nouns = doc.nouns().out('array');
     const verbs = doc.verbs().out('array');
 
-    console.log('Nouns: ', nouns)
-    console.log('Verbs: ', verbs)
-    setTextInput((prevText) => prevText + input + ' ')
-  }
-  
-  const submitForm = async (e) => {
-    e.preventDefault()
-    if (!textInput) return;
-    try{
-      const response = await axios.post(`${apiUrl}/chat`, {
-        message: [textInput],
-      })
+    console.log('Nouns: ', nouns);
+    console.log('Verbs: ', verbs);
+    setTextInput((prevText) => prevText + input + ' ');
+  };
 
-      const  chatResponse = response.data.text;
-      const responseId = chatResponse.id || uuidv4()
+  const submitForm = async (e) => {
+    e.preventDefault();
+    if (!textInput) return;
+    try {
+      const response = await axios.post(apiUrl, { message: textInput }); // Sending POST request
+
+      const chatResponse = response.data.text;
+      const responseId = chatResponse.id || uuidv4();
 
       const chatRef = ref(database, 'chats');
       const newChatRef = push(chatRef);
@@ -80,17 +75,16 @@ function Chat() {
         userInput: textInput,
         response: chatResponse,
         id: responseId
-      })
+      });
 
-      setTextInput("")
-      setChatResponses([...chatResponses, {userInput: textInput, response: chatResponse, id: responseId}])
-      setConversation([...conversation, {userInput: textInput, response: chatResponse, id: responseId}])
-      saveConversation(conversation)
-    }catch (error){
-      console.error("Error:", error)
+      setTextInput('');
+      setChatResponses([...chatResponses, { userInput: textInput, response: chatResponse, id: responseId }]);
+      setConversation([...conversation, { userInput: textInput, response: chatResponse, id: responseId }]);
+      saveConversation(conversation);
+    } catch (error) {
+      console.error('Error:', error);
     }
-  }
-
+  };
 
   return (
     <div className='flex flex-col w-3/4 h-screen container gap-2 bg-gray-900'>
