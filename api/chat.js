@@ -6,16 +6,24 @@ let conversationHistory = [];
 let chat = null;
 
 module.exports = async (req, res) => {
-    console.log(req.body);
     try {
-        let userMsg = req.body.message;
+        // Ensure the request is a POST request
+        if (req.method !== 'POST') {
+            return res.status(405).json({ error: 'Method Not Allowed' });
+        }
+
+        const userMsg = req.body.message;
+
+        if (!userMsg) {
+            return res.status(400).json({ error: 'Message is required' });
+        }
 
         if (!chat) {
             // Create a new chat session if it doesn't exist
             chat = await createChat();
         }
 
-        const result = await chat.sendMessage(userMsg, { role: "user" });
+        const result = await chat.sendMessage(userMsg, { role: 'user' });
         const response = await result.response;
         const currentResponseText = await response.text();
 
@@ -26,14 +34,14 @@ module.exports = async (req, res) => {
         res.json({ text: currentResponseText, id: responseId });
 
     } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ error: "Internal server error" })
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
 async function createChat() {
     // For text-only input, use the gemini-pro model
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
     const chat = model.startChat({
         history: conversationHistory,
